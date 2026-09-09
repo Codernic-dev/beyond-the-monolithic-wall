@@ -10,6 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 BIN_PATH="${REPO_ROOT}/bin/deming-eval"
+CONFIG_PATH="${REPO_ROOT}/config/engine.yaml"
 
 MODEL_PATH=""
 TOKENIZER_PATH=""
@@ -24,7 +25,8 @@ print_help() {
 Usage: ./scripts/run_benchmark.sh [OPTIONS]
 
 Options:
-    --model <PATH>            Path to GGUF model file (REQUIRED)
+    --model <PATH>            Path to GGUF model file (optional if models exist in ./models/)
+    --config <PATH>           Path to YAML configuration file (default: config/engine.yaml)
     --tokenizer <REPO/PATH>   Tokenizer repo or path (optional, extracted from GGUF by default)
     --backend <BACKEND>       Hardware backend: vulkan (default), hip, cuda, auto
     --runner <RUNNER>         Runner strategy: standard (default), medusa, eagle4
@@ -34,8 +36,11 @@ Options:
     -h, --help                Show this help message
 
 Examples:
-    ./scripts/run_benchmark.sh --model ./models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf
-    ./scripts/run_benchmark.sh --model ./models/qwen2.5-coder-7b-instruct-q4_k_m.gguf --compare-llama
+    # Run with auto-discovered model from ./models/ and config/engine.yaml:
+    ./scripts/run_benchmark.sh
+
+    # Run with explicit model and baseline comparison:
+    ./scripts/run_benchmark.sh --model ./models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf --compare-llama
 EOF
 }
 
@@ -43,6 +48,10 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --model)
             MODEL_PATH="$2"
+            shift 2
+            ;;
+        --config)
+            CONFIG_PATH="$2"
             shift 2
             ;;
         --tokenizer)
@@ -91,22 +100,32 @@ mkdir -p "${OUTPUT_DIR}"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 TELEMETRY_CSV="${OUTPUT_DIR}/telemetry_${TIMESTAMP}.csv"
 TELEMETRY_JSON="${OUTPUT_DIR}/telemetry_${TIMESTAMP}.json"
-BENCH_JSON="${OUTPUT_DIR}/benchmark_${TIMESTAMP}.json"
 
 echo "================================================================================"
 echo " BEYOND THE MONOLITHIC WALL - EMPIRICAL BENCHMARK PROTOCOL"
 echo " Author: Juan Tadeo Piana"
+echo " Configuration: ${CONFIG_PATH}"
 echo "================================================================================"
 
 echo -n "Probing Hardware Platform... "
 HW_PROBE="$("${BIN_PATH}" --probe-hardware)"
 echo "${HW_PROBE}"
 
+# Auto-discover model if not explicitly specified
 if [[ -z "${MODEL_PATH}" ]]; then
-    echo "Notice: No --model specified. Hardware probe completed."
-    echo "To execute an inference benchmark, supply a GGUF file:"
-    echo "  ./scripts/run_benchmark.sh --model /path/to/model.gguf"
-    exit 0
+    DISCOVERED="$(find "${REPO_ROOT}/models" -maxdepth 1 -name "*.gguf" 2>/dev/null | head -n 1 || true)"
+    if [[ -n "${DISCOVERED}" ]]; then
+        MODEL_PATH="${DISCOVERED}"
+        echo "Notice: Auto-selected model from ./models/: ${MODEL_PATH}"
+    else
+        echo ""
+        echo "Notice: No GGUF model path specified and none found in ./models/."
+        echo "To execute a benchmark, please either:"
+        echo "  1. Run './scripts/download_models.sh' to download the reference Qwen 2.5 Coder model."
+        echo "  2. Place your .gguf file inside the './models/' directory."
+        echo "  3. Pass '--model /path/to/model.gguf' on the command line."
+        exit 0
+    fi
 fi
 
 if [[ ! -f "${MODEL_PATH}" ]]; then
@@ -132,6 +151,7 @@ sleep 0.2
 echo "Executing Deming Engine Inference Run..."
 DEMING_ARGS=(
     "--model-path" "${MODEL_PATH}"
+    "--config" "${CONFIG_PATH}"
     "--mode" "throughput"
     "--backend" "${BACKEND}"
     "--runner" "${RUNNER}"

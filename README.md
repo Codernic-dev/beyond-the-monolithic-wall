@@ -69,7 +69,13 @@ beyond-the-monolithic-wall/
 ├── bin/
 │   ├── deming-eval                # Stripped standalone release binary (Linux x86_64)
 │   └── README.md                  # Binary artifact specifications and notes
+├── config/
+│   └── engine.yaml                # Canonical Deming Engine configuration file
+├── models/
+│   ├── README.md                  # Model placement guide and download URLs
+│   └── .gitkeep                   # Directory placeholder (weights git-ignored)
 ├── scripts/
+│   ├── download_models.sh         # 1-command reference model downloader
 │   ├── run_benchmark.sh           # Main benchmark execution script
 │   ├── stress_contexts.sh         # Multi-context stress test (512 / 2048 / 8192)
 │   └── telemetry_rapl_smi.py      # 100 Hz GPU + CPU energy & power telemetry sampler
@@ -86,7 +92,30 @@ The executable `bin/deming-eval` is a pre-compiled, stripped 64-bit ELF binary e
 
 ---
 
-## 5. Quickstart and Execution Guide
+## 5. Configuration Management (`config/engine.yaml`)
+
+The Deming Engine reads its runtime parameters from `config/engine.yaml`:
+
+```yaml
+inference:
+  backend: "vulkan"            # "vulkan" (default), "hip" (ROCm), "cuda", or "auto"
+  runner_strategy: "standard"  # "standard", "medusa", or "eagle4"
+  kv_cache:
+    kv_dtype: "int8"           # INT8 Paged Cache (98.6% memory reduction)
+    max_context_tokens: 4096
+
+paths:
+  models_dir: "./models"       # Directory where GGUF weights are located
+  default_model: "./models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf"
+  results_dir: "./results"     # Destination for telemetry logs and benchmark results
+
+telemetry:
+  sampling_interval_ms: 10     # 10 ms interval = 100 Hz sampling frequency
+```
+
+---
+
+## 6. Quickstart and Execution Guide
 
 ### Prerequisites
 * **Operating System:** Linux x86_64 (Kernel 5.15+)
@@ -104,31 +133,40 @@ Run the harness without arguments to verify that your GPU and compute backend ar
 Probing Hardware Platform... {"available_memory_mb":16384,"backend":"vulkan","device_name":"AMD Radeon AI PRO R9700"}
 ```
 
-### Step 2: Run an Inference Benchmark
-Supply any standard GGUF model file (e.g. Qwen, Llama, Mistral):
+### Step 2: Download the Reference Model
+Download the primary reference model (Qwen 2.5 Coder 1.5B Instruct Q4_K_M, ~986 MB) with 1 command:
 ```bash
-./scripts/run_benchmark.sh --model /path/to/your-model-q4_k_m.gguf
+./scripts/download_models.sh
 ```
-This command automatically:
-1. Performs an in-VRAM memory headroom check to guarantee safe execution.
-2. Starts the 100 Hz hardware power sampler in the background.
-3. Executes prompt prefill and token generation.
-4. Reports TTFT, hardware TPS, and total energy consumed.
+*To download the 7B model instead, run `./scripts/download_models.sh --model 7b`.*
 
-### Step 3: Run Relative Comparison vs llama.cpp
+### Step 3: Run the Inference Benchmark
+Once a model is placed in `./models/`, simply execute:
 ```bash
-./scripts/run_benchmark.sh --model /path/to/your-model-q4_k_m.gguf --compare-llama
+./scripts/run_benchmark.sh
+```
+*The script automatically detects the model in `./models/` and loads parameters from `config/engine.yaml`.*
+
+You can also specify an explicit model file from any location:
+```bash
+./scripts/run_benchmark.sh --model /path/to/any-model.gguf
 ```
 
-### Step 4: Run Context Scaling Stress Test
+### Step 4: Run Relative Comparison vs llama.cpp
+To measure your machine's relative speedup ratio against `llama.cpp`:
+```bash
+./scripts/run_benchmark.sh --compare-llama
+```
+
+### Step 5: Run Context Scaling Stress Test
 To evaluate KV-cache memory scaling across 512, 2048, and 8192 context lengths:
 ```bash
-./scripts/stress_contexts.sh /path/to/your-model-q4_k_m.gguf
+./scripts/stress_contexts.sh ./models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf
 ```
 
 ---
 
-## 6. High-Frequency Telemetry Methodology
+## 7. High-Frequency Telemetry Methodology
 
 To measure energy efficiency without relying on estimated or vendor-biased software counters, the included sampler (`scripts/telemetry_rapl_smi.py`) executes concurrent hardware polling at 100 Hz (10 ms intervals):
 * **AMD GPUs:** Reads `power1_average` from `/sys/class/drm/card*/device/hwmon/hwmon*` (microsecond-speed sysfs interface).
@@ -141,7 +179,7 @@ $$\text{Energy per Token} = \frac{E_{\text{total}}}{\text{Total Tokens Generated
 
 ---
 
-## 7. Community Contributions and Verification
+## 8. Community Contributions and Verification
 
 Researchers and practitioners are invited to execute this harness across diverse hardware configurations (AMD RDNA 3/4, NVIDIA Ada/Ampere, Intel Arc, etc.) and share their telemetry traces:
 * Open an issue or pull request with your `results/telemetry_*.csv` and `results/benchmark_*.json`.
@@ -149,7 +187,7 @@ Researchers and practitioners are invited to execute this harness across diverse
 
 ---
 
-## 8. License and Citation
+## 9. License and Citation
 
 * **Code and Harness:** Released under the [Apache License 2.0](LICENSE).
 * **Preprint Citation:**

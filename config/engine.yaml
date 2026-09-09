@@ -1,0 +1,46 @@
+# ==============================================================================
+# Beyond the Monolithic Wall: Deming Engine Configuration
+# Author: Juan Tadeo Piana
+# Copyright (c) 2026 Juan Tadeo Piana / Codernic. All rights reserved.
+# Released under the terms of the Apache 2.0 / MIT License.
+# ==============================================================================
+
+# Hardware compute and inference runtime parameters
+inference:
+  # Compute backend: "vulkan" (default, cross-platform), "hip" (AMD ROCm), "cuda" (NVIDIA), or "auto"
+  backend: "vulkan"
+
+  # Inference strategy: "standard", "medusa", or "eagle4"
+  runner_strategy: "standard"
+
+  # KV-Cache allocation strategy (INT8 Paged Cache enables 98.6% memory reduction)
+  kv_cache:
+    # Options: "int8" (recommended, maximum memory efficiency) or "f16"
+    kv_dtype: "int8"
+    # Maximum supported context length in tokens
+    max_context_tokens: 4096
+
+  # Optional driver library overrides (if installed in non-standard paths)
+  rocm_driver_path: "/opt/rocm/lib/libamdhip64.so"
+  cuda_driver_path: ""
+
+# File and directory paths
+paths:
+  # Dedicated directory where GGUF model weights are placed and discovered
+  models_dir: "./models"
+
+  # Default reference model to run if none is specified via CLI
+  # Run ./scripts/download_models.sh to fetch this model automatically
+  default_model: "./models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf"
+
+  # Directory where benchmark execution JSON results and CSV traces are written
+  results_dir: "./results"
+
+# 100 Hz hardware energy and power telemetry configuration
+telemetry:
+  # Sampling interval in milliseconds (10 ms = 100 Hz)
+  sampling_interval_ms: 10
+  # Monitor GPU power via sysfs / rocm-smi / nvidia-smi
+  enable_gpu_sampling: true
+  # Monitor CPU power via Intel RAPL MSR
+  enable_cpu_rapl: true

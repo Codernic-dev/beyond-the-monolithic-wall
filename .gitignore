@@ -2,10 +2,11 @@
 results/
 *.log
 
-# Local model weights
-models/
+# Model weights (ignore large binary weights, keep models directory tracked)
+models/*.gguf
+models/*.bin
+models/*.safetensors
 *.gguf
-*.bin
 *.safetensors
 
 # Python cache
