@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Beyond the Monolithic Wall: Deming Engine Benchmark Harness
-# Copyright (c) 2026 Tadeop / Codernic. Released under MIT License.
+# Author: Juan Tadeo Piana
+# Copyright (c) 2026 Juan Tadeo Piana / Codernic. All rights reserved.
+# Released under the terms of the Apache 2.0 / MIT License.
 # ==============================================================================
 set -euo pipefail
 
@@ -80,7 +82,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ! -x "${BIN_PATH}" ]]; then
-    echo "❌ Error: Release binary '${BIN_PATH}' not found or not executable."
+    echo "Error: Release binary '${BIN_PATH}' not found or not executable."
     echo "Please check that bin/deming-eval is present."
     exit 1
 fi
@@ -92,28 +94,29 @@ TELEMETRY_JSON="${OUTPUT_DIR}/telemetry_${TIMESTAMP}.json"
 BENCH_JSON="${OUTPUT_DIR}/benchmark_${TIMESTAMP}.json"
 
 echo "================================================================================"
-echo " 🚀 BEYOND THE MONOLITHIC WALL - EMPIRICAL BENCHMARK PROTOCOL"
+echo " BEYOND THE MONOLITHIC WALL - EMPIRICAL BENCHMARK PROTOCOL"
+echo " Author: Juan Tadeo Piana"
 echo "================================================================================"
 
-echo -n "🔍 Probing Hardware Platform... "
+echo -n "Probing Hardware Platform... "
 HW_PROBE="$("${BIN_PATH}" --probe-hardware)"
 echo "${HW_PROBE}"
 
 if [[ -z "${MODEL_PATH}" ]]; then
-    echo "⚠️  No --model specified. Running hardware check mode."
-    echo "To run a full inference benchmark, supply a GGUF file:"
+    echo "Notice: No --model specified. Hardware probe completed."
+    echo "To execute an inference benchmark, supply a GGUF file:"
     echo "  ./scripts/run_benchmark.sh --model /path/to/model.gguf"
     exit 0
 fi
 
 if [[ ! -f "${MODEL_PATH}" ]]; then
-    echo "❌ Error: Model file '${MODEL_PATH}' does not exist."
+    echo "Error: Model file '${MODEL_PATH}' does not exist."
     exit 1
 fi
 
-echo "📦 Target Model: ${MODEL_PATH}"
-echo "⚙️  Backend: ${BACKEND} | Runner: ${RUNNER} | Context: ${CONTEXT_SIZE}"
-echo "📊 Telemetry: 100 Hz sampling -> ${TELEMETRY_CSV}"
+echo "Target Model: ${MODEL_PATH}"
+echo "Backend: ${BACKEND} | Runner: ${RUNNER} | Context: ${CONTEXT_SIZE}"
+echo "Telemetry: 100 Hz sampling -> ${TELEMETRY_CSV}"
 echo "--------------------------------------------------------------------------------"
 
 # Launch 100 Hz energy telemetry in background
@@ -126,7 +129,7 @@ TELEM_PID=$!
 sleep 0.2
 
 # Execute Deming Engine benchmark
-echo "⚡ Executing Deming Engine Inference Run..."
+echo "Executing Deming Engine Inference Run..."
 DEMING_ARGS=(
     "--model-path" "${MODEL_PATH}"
     "--mode" "throughput"
@@ -146,7 +149,7 @@ kill -TERM "${TELEM_PID}" 2>/dev/null || true
 wait "${TELEM_PID}" 2>/dev/null || true
 
 echo "--------------------------------------------------------------------------------"
-echo "✅ Telemetry trace captured in: ${TELEMETRY_CSV}"
+echo "Telemetry trace captured in: ${TELEMETRY_CSV}"
 
 # Optional comparison against llama.cpp
 if [[ "${COMPARE_LLAMA}" == "1" ]]; then
@@ -154,14 +157,14 @@ if [[ "${COMPARE_LLAMA}" == "1" ]]; then
     if [[ -n "${LLAMA_BENCH}" ]]; then
         echo ""
         echo "================================================================================"
-        echo " 🦙 RUNNING LLAMA.CPP BASELINE COMPARISON"
+        echo " RUNNING LLAMA.CPP BASELINE COMPARISON"
         echo "================================================================================"
         "${LLAMA_BENCH}" -m "${MODEL_PATH}" -n 100 -p 512 || true
     else
-        echo "⚠️  llama-bench binary not found on PATH. Skipping llama.cpp baseline."
+        echo "Notice: llama-bench binary not found on PATH. Skipping llama.cpp baseline."
     fi
 fi
 
 echo ""
-echo "✨ Benchmark cycle completed successfully."
+echo "Benchmark cycle completed successfully."
 echo "Results logged to: ${OUTPUT_DIR}/"

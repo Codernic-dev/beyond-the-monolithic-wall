@@ -2,7 +2,10 @@
 """
 Deming Engine 100 Hz Hardware Energy & Power Telemetry Sampler
 Part of 'Beyond the Monolithic Wall' Evaluation Suite
-Copyright (c) 2026 Tadeop / Codernic. Released under MIT License.
+
+Author: Juan Tadeo Piana
+Copyright (c) 2026 Juan Tadeo Piana / Codernic. All rights reserved.
+Released under the terms of the Apache 2.0 / MIT License.
 
 Measures real-time GPU and CPU power dissipation at up to 100 Hz (10 ms interval).
 Computes exact integrated energy in Joules and Energy per Token (J/tok).
@@ -74,7 +77,7 @@ def main():
         except Exception:
             pass
 
-    print(f"[Telemetry] Hardware interfaces detected:")
+    print("[Telemetry] Hardware interfaces detected:")
     print(f"  - AMD Sysfs Hwmon: {'ACTIVE (' + amd_hwmon + ')' if amd_hwmon else 'Not found'}")
     print(f"  - Intel RAPL:      {'ACTIVE (' + rapl_path + ')' if rapl_path else 'Restricted / Not found'}")
     print(f"  - NVIDIA SMI:      {'ACTIVE' if has_nvidia else 'Not found'}")
@@ -175,25 +178,26 @@ def main():
         peak_power = max(s[3] for s in samples)
         peak_gpu = max(s[1] for s in samples)
 
-        print("\n╔════════════════════════════════════════════════════════════════════════════════╗")
-        print("║ ⚡ [ENERGY & POWER TELEMETRY SUMMARY - 100 HZ LOG]                             ║")
-        print("╠════════════════════════════════════════════════════════════════════════════════╣")
-        print(f"║ Duration:            {total_duration_s:>12.2f} s                                     ║")
-        print(f"║ Samples Captured:    {len(samples):>12}                                           ║")
-        print(f"║ Total Energy:        {total_joules:>12.2f} Joules (J)                             ║")
-        print(f"║ GPU Energy:          {gpu_joules:>12.2f} Joules (J)                             ║")
-        print(f"║ Average Total Power: {avg_power:>12.2f} W                                      ║")
-        print(f"║ Peak System Power:   {peak_power:>12.2f} W                                      ║")
-        print(f"║ Peak GPU Power:      {peak_gpu:>12.2f} W                                      ║")
+        print("\n+--------------------------------------------------------------------------------+")
+        print("| [ENERGY & POWER TELEMETRY SUMMARY - 100 HZ LOG]                                |")
+        print("+--------------------------------------------------------------------------------+")
+        print(f"| Duration:            {total_duration_s:>12.2f} s                                     |")
+        print(f"| Samples Captured:    {len(samples):>12}                                           |")
+        print(f"| Total Energy:        {total_joules:>12.2f} Joules (J)                             |")
+        print(f"| GPU Energy:          {gpu_joules:>12.2f} Joules (J)                             |")
+        print(f"| Average Total Power: {avg_power:>12.2f} W                                      |")
+        print(f"| Peak System Power:   {peak_power:>12.2f} W                                      |")
+        print(f"| Peak GPU Power:      {peak_gpu:>12.2f} W                                      |")
 
         j_per_tok = None
         if args.tokens and args.tokens > 0:
             j_per_tok = total_joules / args.tokens
-            print(f"║ Generated Tokens:    {args.tokens:>12}                                           ║")
-            print(f"║ Energy Per Token:    {j_per_tok:>12.4f} Joules / token (J/tok)                    ║")
-        print("╚════════════════════════════════════════════════════════════════════════════════╝\n")
+            print(f"| Generated Tokens:    {args.tokens:>12}                                           |")
+            print(f"| Energy Per Token:    {j_per_tok:>12.4f} Joules / token (J/tok)                    |")
+        print("+--------------------------------------------------------------------------------+\n")
 
         summary = {
+            "author": "Juan Tadeo Piana",
             "duration_s": total_duration_s,
             "samples_count": len(samples),
             "total_energy_joules": total_joules,

@@ -1,5 +1,6 @@
 {
   "experiment": "Beyond the Monolithic Wall - Reference Baseline",
+  "author": "Juan Tadeo Piana",
   "paper_reference": "Section 5 - Empirical Evaluation",
   "model": {
     "name": "Qwen 2.5 Coder 1.5B Instruct",

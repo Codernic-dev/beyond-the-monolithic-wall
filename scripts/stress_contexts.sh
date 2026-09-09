@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Multi-Context Stress Test Suite (512 / 2048 / 8192 Tokens)
-# Copyright (c) 2026 Tadeop / Codernic. Released under MIT License.
+# Author: Juan Tadeo Piana
+# Copyright (c) 2026 Juan Tadeo Piana / Codernic. All rights reserved.
+# Released under the terms of the Apache 2.0 / MIT License.
 # ==============================================================================
 set -euo pipefail
 
@@ -18,7 +20,8 @@ fi
 CONTEXTS=(512 2048 8192)
 
 echo "================================================================================"
-echo " 🔬 CONTEXT LENGTH STRESS & KV-CACHE RETENTION EVALUATION"
+echo " CONTEXT LENGTH STRESS & KV-CACHE RETENTION EVALUATION"
+echo " Author: Juan Tadeo Piana"
 echo " Target Model: ${MODEL_PATH}"
 echo " Contexts: 512, 2048, 8192 tokens"
 echo "================================================================================"
@@ -35,5 +38,5 @@ done
 
 echo ""
 echo "================================================================================"
-echo "✅ Context stress loop completed."
+echo "Context stress loop completed."
 echo "================================================================================"
