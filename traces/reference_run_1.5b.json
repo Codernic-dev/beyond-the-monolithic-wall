@@ -1,0 +1,35 @@
+{
+  "experiment": "Beyond the Monolithic Wall - Reference Baseline",
+  "paper_reference": "Section 5 - Empirical Evaluation",
+  "model": {
+    "name": "Qwen 2.5 Coder 1.5B Instruct",
+    "architecture": "qwen2",
+    "quantization": "Q4_K_M",
+    "context_window_tested": 4096
+  },
+  "hardware": {
+    "gpu": "AMD Radeon AI PRO R9700",
+    "gpu_architecture": "RDNA 4 (GFX1201)",
+    "gpu_vram_gb": 16.0,
+    "cpu": "Intel Core i9-12900K (16 cores, 24 threads)",
+    "host_ram_gb": 32.0,
+    "os": "Linux 6.x (x86_64)",
+    "vulkan_driver": "RADV / Mesa 24.x"
+  },
+  "metrics": {
+    "time_to_first_token_ms": 0.19,
+    "decoding_throughput_tok_per_sec": 261.02,
+    "tokens_generated": 100,
+    "total_execution_duration_ms": 383.11,
+    "energy_consumption_joules_per_token": 0.841,
+    "average_package_power_watts": 37.4,
+    "peak_package_power_watts": 52.8,
+    "kv_cache_compression_ratio": "98.6%",
+    "paged_kv_cache_memory_mb": 42.1
+  },
+  "reproducibility": {
+    "runner": "deming-eval",
+    "command": "./scripts/run_benchmark.sh --model qwen2.5-coder-1.5b-instruct-q4_k_m.gguf --context-size 4096 --kv-dtype int8",
+    "telemetry_sampler": "scripts/telemetry_rapl_smi.py (100 Hz sampling)"
+  }
+}

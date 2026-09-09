@@ -1,0 +1,13 @@
+# Benchmark results & local logs
+results/
+*.log
+
+# Local model weights
+models/
+*.gguf
+*.bin
+*.safetensors
+
+# Python cache
+__pycache__/
+*.py[cod]
