@@ -29,9 +29,10 @@ This repository provides an **independent, reproducible evaluation harness**. It
 ### Practitioner Disclosure
 > *I am Juan Tadeo Piana, an independent software developer with 26 years of hands-on experience in low-level systems engineering. I hold no university degrees or formal academic credentials in theoretical mathematics, engineering, or computer science; I am neither an academic researcher nor an institutional theorist. The ground truth of this research resides strictly in physical bare-metal silicon telemetry (Intel RAPL MSR and AMD ROCm SMI sampled at 100 Hz) and verified shader execution. Mathematical formulations are descriptive models provided to share systems findings with the scientific community.*
 
-### Understanding Hardware Differences and Relative Speedup
-Because GPU architectures, memory bus widths, and compute unit configurations vary across hardware platforms, **absolute Tokens Per Second (TPS) will naturally vary across different machines**:
-* An NVIDIA RTX 4090, an AMD Radeon AI PRO R9700, or an Apple Silicon M-series chip each have distinct silicon characteristics and peak compute capabilities.
+### Hardware Architecture and Multi-Backend Development Note
+While the core Deming Engine runtime was physically developed and validated across dedicated hardware architectures corresponding to each specific compute pipeline—notably on an **NVIDIA GeForce RTX 3080** for bare-metal CUDA shaders and on **Apple Silicon** for Metal—**the empirical benchmark suite and published telemetry presented in this repository strictly evaluate the reference testbed specified below (AMD Radeon AI PRO R9700 + Intel Core i9-12900K)**.
+
+Because GPU architectures, memory bus widths, and compute unit configurations vary across hardware platforms (e.g., an NVIDIA GeForce RTX 3080, an AMD Radeon AI PRO R9700, or an Apple Silicon chip), **absolute Tokens Per Second (TPS) will naturally vary across different machines**:
 * **The definitive portable metric is RELATIVE EFFICIENCY:**
   $$\text{Relative Speedup} = \frac{\text{TPS}_{\text{Deming}}}{\text{TPS}_{\text{llama.cpp}}}$$
   $$\text{Energy Reduction} = 1 - \frac{\text{Joules/token}_{\text{Deming}}}{\text{Joules/token}_{\text{Baseline}}}$$
@@ -45,7 +46,7 @@ All metrics reported in Section 5 of the preprint were measured on the following
 
 | Component | Specification |
 |---|---|
-| **GPU** | AMD Radeon AI PRO R9700 (16 GB VRAM, RDNA 4 GFX1201) |
+| **GPU** | AMD Radeon AI PRO R9700 (32 GB VRAM, RDNA 4 GFX1201) |
 | **CPU** | Intel Core i9-12900K (16 cores / 24 threads, Alder Lake) |
 | **Host Memory** | 32 GB DDR5 RAM |
 | **OS & Drivers** | Linux 6.x (x86_64), Vulkan 1.3 / RADV Mesa 24.x |
@@ -130,7 +131,7 @@ Run the harness without arguments to verify that your GPU and compute backend ar
 ```
 *Sample output:*
 ```text
-Probing Hardware Platform... {"available_memory_mb":16384,"backend":"vulkan","device_name":"AMD Radeon AI PRO R9700"}
+Probing Hardware Platform... {"available_memory_mb":32768,"backend":"vulkan","device_name":"AMD Radeon AI PRO R9700"}
 ```
 
 ### Step 2: Download the Reference Model

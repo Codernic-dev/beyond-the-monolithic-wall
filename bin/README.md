@@ -28,5 +28,5 @@ To verify hardware detection and driver compatibility on your machine:
 
 Sample output:
 ```json
-{"available_memory_mb":16384,"backend":"vulkan","device_name":"AMD Radeon AI PRO R9700"}
+{"available_memory_mb":32768,"backend":"vulkan","device_name":"AMD Radeon AI PRO R9700"}
 ```

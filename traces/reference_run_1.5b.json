@@ -11,7 +11,7 @@
   "hardware": {
     "gpu": "AMD Radeon AI PRO R9700",
     "gpu_architecture": "RDNA 4 (GFX1201)",
-    "gpu_vram_gb": 16.0,
+    "gpu_vram_gb": 32.0,
     "cpu": "Intel Core i9-12900K (16 cores, 24 threads)",
     "host_ram_gb": 32.0,
     "os": "Linux 6.x (x86_64)",
