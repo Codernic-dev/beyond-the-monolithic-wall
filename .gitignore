@@ -12,3 +12,5 @@ models/*.safetensors
 # Python cache
 __pycache__/
 *.py[cod]
+target/
+node_modules/
