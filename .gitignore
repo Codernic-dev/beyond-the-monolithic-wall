@@ -14,3 +14,14 @@ __pycache__/
 *.py[cod]
 target/
 node_modules/
+
+# Sovereign runtime, caches & databases (auto-standardized)
+.coe/
+.codernic/
+dist/
+.next/
+.turbo/
+*.redb
+*.db
+*.db-wal
+*.db-shm
